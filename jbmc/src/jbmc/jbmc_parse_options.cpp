@@ -103,9 +103,6 @@ void jbmc_parse_optionst::get_command_line_options(optionst &options)
   if(cmdline.isset("show-vcc"))
     options.set_option("show-vcc", true);
 
-  if(cmdline.isset("cover"))
-    parse_cover_options(cmdline, options);
-
   if(cmdline.isset("no-simplify"))
     options.set_option("simplify", false);
   else
@@ -181,14 +178,9 @@ void jbmc_parse_optionst::get_command_line_options(optionst &options)
     options.set_option("error-label", cmdline.get_values("error-label"));
 
   // generate unwinding assertions
-  if(cmdline.isset("cover"))
-    options.set_option("unwinding-assertions", false);
-  else
-  {
-    options.set_option(
-      "unwinding-assertions",
-      cmdline.isset("unwinding-assertions"));
-  }
+  options.set_option(
+    "unwinding-assertions",
+    cmdline.isset("unwinding-assertions"));
 
   // generate unwinding assumptions otherwise
   options.set_option(
@@ -940,16 +932,8 @@ bool jbmc_parse_optionst::process_goto_functions(
       remove_unused_functions(goto_model, get_message_handler());
     }
 
-    // remove skips such that trivial GOTOs are deleted and not considered
-    // for coverage annotation:
+    // remove skips such that trivial GOTOs are deleted
     remove_skip(goto_model);
-
-    // instrument cover goals
-    if(cmdline.isset("cover"))
-    {
-      if(instrument_cover_goals(options, goto_model, get_message_handler()))
-        return true;
-    }
 
     // label the assertions
     // This must be done after adding assertions and
@@ -994,7 +978,7 @@ bool jbmc_parse_optionst::process_goto_functions(
         full_slicer(goto_model);
     }
 
-    // remove any skips introduced since coverage instrumentation
+    // remove any skips
     remove_skip(goto_model);
   }
 
@@ -1108,7 +1092,6 @@ void jbmc_parse_optionst::help()
     " --no-assertions              ignore user assertions\n"
     " --no-assumptions             ignore user assumptions\n"
     " --error-label label          check that label is unreachable\n"
-    " --cover CC                   create test-suite with coverage criterion CC\n" // NOLINT(*)
     " --mm MM                      memory consistency model for concurrent programs\n" // NOLINT(*)
     HELP_REACHABILITY_SLICER
     " --full-slice                 run full slicer (experimental)\n" // NOLINT(*)
