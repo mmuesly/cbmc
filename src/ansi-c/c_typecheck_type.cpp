@@ -88,7 +88,7 @@ void c_typecheck_baset::typecheck_type(typet &type)
     typecheck_c_bit_field_type(to_c_bit_field_type(type));
   else if(type.id()==ID_typeof)
     typecheck_typeof_type(type);
-  else if(type.id()==ID_symbol)
+  else if(type.id() == ID_symbol_type)
     typecheck_symbol_type(type);
   else if(type.id()==ID_vector)
     typecheck_vector_type(to_vector_type(type));
