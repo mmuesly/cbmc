@@ -1734,11 +1734,14 @@ bool simplify_exprt::simplify_byte_extract(byte_extract_exprt &expr)
     return true;
 
   if(expr.op().id()==ID_array_of &&
-     expr.op().op0().id()==ID_constant)
+     to_array_of_expr(expr.op()).op().id()==ID_constant)
   {
     std::string const_bits=
-      expr2bits(expr.op().op0(),
+      expr2bits(to_array_of_expr(expr.op()).op(),
                 byte_extract_id()==ID_byte_extract_little_endian);
+
+    if(const_bits.empty())
+      return true;
 
     // double the string until we have sufficiently many bits
     while(mp_integer(const_bits.size())<offset*8+el_size)
