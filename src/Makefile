@@ -38,6 +38,10 @@ $(patsubst %, %.dir, $(filter-out big-int util, $(DIRS))): util.dir
 
 .PHONY: languages
 .PHONY: clean
+.PHONY: version
+
+version:
+	$(MAKE) $(MAKEARGS) -C cbmc version.h
 
 cpp.dir: ansi-c.dir linking.dir
 
@@ -49,20 +53,21 @@ solvers.dir: util.dir langapi.dir
 
 goto-instrument.dir: languages goto-programs.dir pointer-analysis.dir \
                      goto-symex.dir linking.dir analyses.dir solvers.dir \
-                     json.dir
+                     json.dir version
 
 cbmc.dir: languages solvers.dir goto-symex.dir analyses.dir \
           pointer-analysis.dir goto-programs.dir linking.dir \
-          goto-instrument.dir
+          goto-instrument.dir version
 
 goto-analyzer.dir: languages analyses.dir goto-programs.dir linking.dir \
-                   json.dir goto-instrument.dir
+                   json.dir goto-instrument.dir version
 
 goto-diff.dir: languages goto-programs.dir pointer-analysis.dir \
                linking.dir analyses.dir goto-instrument.dir \
-               solvers.dir json.dir goto-symex.dir
+               solvers.dir json.dir goto-symex.dir version
 
-goto-cc.dir: languages pointer-analysis.dir goto-programs.dir linking.dir
+goto-cc.dir: languages pointer-analysis.dir goto-programs.dir linking.dir \
+             version
 
 # building for a particular directory
 
