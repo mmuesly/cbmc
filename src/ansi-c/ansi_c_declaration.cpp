@@ -20,38 +20,40 @@ Author: Daniel Kroening, kroening@kroening.com
 
 void ansi_c_declaratort::build(irept &src)
 {
-  typet *p=static_cast<typet *>(&src);
+  irept *p = &src;
 
   // walk down subtype until we hit symbol_type or "abstract"
   while(true)
   {
-    typet &t=*p;
-
-    if(t.id() == ID_symbol_type || t.id() == ID_symbol)
+    if(p->id() == ID_symbol_type || p->id() == ID_symbol)
     {
-      set_base_name(t.get(ID_C_base_name));
-      add_source_location()=t.source_location();
-      t.make_nil();
+      set_base_name(p->get(ID_C_base_name));
+      add_source_location() =
+        static_cast<const source_locationt &>(p->find(ID_C_source_location));
+      p->make_nil();
       break;
     }
-    else if(t.id().empty() ||
-            t.is_nil())
+    else if(p->id().empty() || p->is_nil())
     {
       UNREACHABLE;
     }
-    else if(t.id()==ID_abstract)
+    else if(p->id() == ID_abstract)
     {
-      t.make_nil();
+      p->make_nil();
       break;
     }
-    else if(t.id()==ID_merged_type)
+    else if(p->id() == ID_merged_type)
     {
       // we always walk down the _last_ member of a merged type
+      typet &t = static_cast<typet &>(*p);
       assert(!t.subtypes().empty());
       p=&(t.subtypes().back());
     }
     else
+    {
+      typet &t = static_cast<typet &>(*p);
       p=&t.subtype();
+    }
   }
 
   type()=static_cast<const typet &>(src);
